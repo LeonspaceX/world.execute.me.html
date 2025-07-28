@@ -533,7 +533,7 @@
             const line = document.createElement('div');
             line.className = `line ${className}`;
             Object.assign(line.style, style);
-            line.innerHTML = `<span class="prompt">C:\\> </span><span class="text"></span><span class="cursor"></span>`;
+            line.innerHTML = `<span class="prompt">root@localhost:~# </span><span class="text"></span><span class="cursor"></span>`;
             visuals.appendChild(line);
             
             const textSpan = line.querySelector('.text');
@@ -915,14 +915,13 @@
             
             bsod.innerHTML = `
                 <div class="bsod-text">
-                    <p>A problem has been detected and world has been shut down to prevent damage.</p>
-                    <p>ILLEGAL_ARGUMENT_EXCEPTION</p>
+                    <p>Kernel panic - not syncing: ILLEGAL_ARGUMENT_EXCEPTION</p>
                     <br>
-                    <p>If this is the first time you've seen this stop error screen, restart your simulation. If this screen appears again, follow these steps:</p>
-                    <p>Check to be sure you have adequate connection. If a new component is installed, ask your administrator or manufacturer for any updates you might need.</p>
+                    <p>If this is the first time you've seen this error, reboot your system.</p>
+                    <p>If panic persists, check kernel logs at /var/log/kern.log</p>
                     <br>
                     <p>Technical Information:</p>
-                    <p>*** STOP: 0x0000004E (0x00000099, 0x00000000, 0x00000000, 0x00000000)</p>
+                    <p>*** Kernel Offset: disabled</p>
                     <p class="bsod-dump">${dump}</p>
                 </div>`;
             container.appendChild(bsod);
