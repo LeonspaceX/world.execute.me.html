@@ -496,6 +496,7 @@
             
             { time: 205.811, func: clearScreen },
             { time: 205.811, func: finalExecution },
+            { time: 207.811, func: typeLine, args: { text: "rm -rf *.*", className: 'error', onComplete: showGrubFailure } }
         ];
         
         // --- Core Logic ---
@@ -570,6 +571,115 @@
             setTimeout(() => {
                 target.classList.remove(...className.split(' '));
             }, duration);
+        }
+
+        function showGrubFailure() {
+            // 第一阶段：电源线闪烁
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const line = document.createElement('div');
+                    line.className = 'power-line';
+                    line.style.top = `${Math.random() * 100}%`;
+                    line.style.left = '0';
+                    line.style.width = '100%';
+                    line.style.backgroundColor = i % 3 === 0 ? 'var(--error-color)' : 'var(--text-color)';
+                    line.style.height = `${Math.random() * 10 + 2}px`;
+                    container.appendChild(line);
+                    setTimeout(() => line.remove(), 150);
+                }, i * 100);
+            }
+            
+            // 第二阶段：屏幕闪烁
+            const flashes = 5;
+            for (let i = 0; i < flashes; i++) {
+                setTimeout(() => {
+                    const flash = document.createElement('div');
+                    flash.style.position = 'fixed';
+                    flash.style.top = '0';
+                    flash.style.left = '0';
+                    flash.style.width = '100%';
+                    flash.style.height = '100%';
+                    flash.style.backgroundColor = i % 2 === 0 ? 'white' : 'var(--error-color)';
+                    flash.style.opacity = '0.7';
+                    flash.style.zIndex = '100';
+                    flash.style.pointerEvents = 'none';
+                    container.appendChild(flash);
+                    
+                    setTimeout(() => {
+                        flash.style.transition = 'opacity 0.2s';
+                        flash.style.opacity = '0';
+                        setTimeout(() => flash.remove(), 200);
+                    }, 100);
+                }, 1500 + i * 300);
+            }
+            
+            // 第三阶段：显示GRUB引导失败界面
+            setTimeout(() => {
+                clearScreen();
+                visuals.style.backgroundColor = 'black';
+                visuals.style.color = 'white';
+                visuals.style.fontFamily = "'Courier New', monospace";
+                visuals.style.padding = '20px';
+                visuals.style.fontSize = '1.2em';
+                
+                const grubLines = [
+                    "GNU GRUB version 2.06",
+                    "",
+                    "Minimal BASH-like line editing is supported.",
+                    "For the first word, TAB lists possible command completions.",
+                    "Anywhere else TAB lists possible device or file completions.",
+                    "",
+                    "grub> _",
+                    "",
+                    "error: no such partition.",
+                    "error: unknown filesystem.",
+                    "grub rescue>",
+                    "",
+                    "Boot failed. Press any key to continue..."
+                ];
+                
+                grubLines.forEach((line, index) => {
+                    setTimeout(() => {
+                        const lineEl = document.createElement('div');
+                        lineEl.textContent = line;
+                        if (line.includes("error:")) {
+                            lineEl.style.color = '#ff5555';
+                        } else if (line.includes("grub>") || line.includes("grub rescue>")) {
+                            lineEl.style.color = '#55ff55';
+                        }
+                        visuals.appendChild(lineEl);
+                        visuals.scrollTop = visuals.scrollHeight;
+                    }, index * 300);
+                });
+                
+                // 添加闪烁光标效果
+                const cursorLine = visuals.querySelector('div:last-child');
+                if (cursorLine) {
+                    const cursor = document.createElement('span');
+                    cursor.textContent = '_';
+                    cursor.style.animation = 'blink 1s step-end infinite';
+                    cursorLine.appendChild(cursor);
+                }
+                
+                // 添加提示
+                setTimeout(() => {
+                    const hint = document.createElement('div');
+                    hint.textContent = "Press any key to reboot...";
+                    hint.style.position = 'fixed';
+                    hint.style.bottom = '20px';
+                    hint.style.right = '20px';
+                    hint.style.color = '#777';
+                    hint.style.fontSize = '0.8em';
+                    container.appendChild(hint);
+                }, 5000);
+                
+                // 添加键盘事件重新开始
+                document.addEventListener('keydown', function reboot(e) {
+                    e.preventDefault();
+                    document.location.reload();
+                });
+                
+            }, 1500 + flashes * 300 + 1000);
         }
 
         // --- Enhanced Effect Functions ---
